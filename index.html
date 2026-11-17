@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriTrade Global | Live Export Commodity Auction</title>
+  <style>
+    :root {
+      --primary: #2d5a27;
+      --primary-dark: #1e3f1a;
+      --accent: #d97706;
+      --bg: #f4f6f5;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    /* Header & Top Bar */
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1.25rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .brand h1 {
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand p {
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .live-badge {
+      background-color: var(--danger);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background-color: white;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .btn-export {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-export:hover {
+      background-color: #b45309;
+    }
+
+    /* Main Layout */
+    .container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 2rem;
+    }
+
+    @media (max-width: 960px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .bidder-input {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .bidder-input input {
+      border: none;
+      outline: none;
+      font-weight: 600;
+      color: var(--primary);
+      width: 140px;
+    }
+
+    /* Auction Grid */
+    .auction-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .lot-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+
+    .lot-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .lot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+
+    .category-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      background: #e6f4ea;
+      color: var(--primary);
+    }
+
+    .category-tag.pulses {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .timer {
+      font-family: monospace;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--danger);
+      background: #fee2e2;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .lot-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .lot-specs {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lot-specs span {
+      display: block;
+    }
+
+    .price-box {
+      background: #f9fafb;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .price-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .current-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .high-bidder {
+      font-size: 0.8rem;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .bid-controls {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .bid-controls input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .btn-bid {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-bid:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-bid:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    /* Sidebar / Live Feed */
+    .sidebar {
+      background: var(--card-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 1.25rem;
+      height: fit-content;
+    }
+
+    .sidebar h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .feed-list {
+      list-style: none;
+      max-height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .feed-item {
+      font-size: 0.85rem;
+      padding: 0.6rem;
+      background: #f9fafb;
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+    }
+
+    .feed-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--text-main);
+      color: white;
+      padding: 0.8rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 1000;
+    }
+
+    #toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>AgriTrade Export Exchange</h1>
+      <p>Live International Commodity Bidding Floor (FOB Pricing / Metric Ton)</p>
+    </div>
+    <div class="header-controls">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        Live Market
+      </div>
+      <button class="btn-export" onclick="exportLiveDataCSV()">⬇ Export Live Data (CSV)</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Left Section: Auction Lots -->
+    <section>
+      <div class="filter-bar">
+        <div class="filter-buttons">
+          <button class="filter-btn active" onclick="filterLots('ALL', this)">All Commodities</button>
+          <button class="filter-btn" onclick="filterLots('Coffee', this)">Coffee Beans</button>
+          <button class="filter-btn" onclick="filterLots('Pulses', this)">Pulses & Lentils</button>
+        </div>
+
+        <div class="bidder-input">
+          <label for="buyerName">Buyer ID:</label>
+          <input type="text" id="buyerName" value="GlobalRoast_Ltd">
+        </div>
+      </div>
+
+      <div class="auction-grid" id="auctionGrid">
+        <!-- Auction cards injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- Right Section: Live Activity Feed -->
+    <aside class="sidebar">
+      <h2>Live Bid Ticker</h2>
+      <ul class="feed-list" id="feedList">
+        <li class="feed-item">
+          <div><strong>System</strong> initialized auction floor.</div>
+          <div class="feed-time">Just now</div>
+        </li>
+      </ul>
+    </aside>
+  </main>
+
+  <div id="toast"></div>
+
+  <script>
+    // 1. Commodity Auction Dataset
+    const lots = [
+      {
+        id: "LOT-101",
+        category: "Coffee",
+        name: "Ethiopian Yirgacheffe Grade 1",
+        origin: "Addis Ababa / Djibouti Port",
+        quantity: "19.2 MT (1 FCL - 320 Bags)",
+        grade: "Washed Arabica, Screen 15+",
+        currentBid: 4850,
+        minIncrement: 25,
+        highestBidder: "NordicBeans_AB",
+        timeLeft: 420 // seconds
+      },
+      {
+        id: "LOT-102",
+        category: "Pulses",
+        name: "Kabuli Chickpeas (9mm)",
+        origin: "Mersin / Izmir Port",
+        quantity: "24.0 MT (1 FCL)",
+        grade: "Export Grade A, Moisture < 12%",
+        currentBid: 1120,
+        minIncrement: 10,
+        highestBidder: "MediterraFoods",
+        timeLeft: 315
+      },
+      {
+        id: "LOT-103",
+        category: "Coffee",
+        name: "Sidamo Natural Grade 2",
+        origin: "Djibouti Port",
+        quantity: "19.2 MT (320 Jute Bags)",
