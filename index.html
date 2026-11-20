@@ -3,442 +3,198 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgriTrade Global | Live Export Commodity Auction</title>
-  <style>
-    :root {
-      --primary: #2d5a27;
-      --primary-dark: #1e3f1a;
-      --accent: #d97706;
-      --bg: #f4f6f5;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
-      --success: #10b981;
-      --danger: #ef4444;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      line-height: 1.5;
-    }
-
-    /* Header & Top Bar */
-    header {
-      background-color: var(--primary);
-      color: white;
-      padding: 1.25rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .brand h1 {
-      font-size: 1.5rem;
-      letter-spacing: 0.5px;
-    }
-
-    .brand p {
-      font-size: 0.85rem;
-      opacity: 0.85;
-    }
-
-    .header-controls {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .live-badge {
-      background-color: var(--danger);
-      color: white;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background-color: white;
-      border-radius: 50%;
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.2); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-
-    .btn-export {
-      background-color: var(--accent);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-export:hover {
-      background-color: #b45309;
-    }
-
-    /* Main Layout */
-    .container {
-      max-width: 1300px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 2rem;
-    }
-
-    @media (max-width: 960px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Filter Bar */
-    .filter-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .filter-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .filter-btn {
-      background: white;
-      border: 1px solid var(--border);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      color: var(--text-main);
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .bidder-input {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: white;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-
-    .bidder-input input {
-      border: none;
-      outline: none;
-      font-weight: 600;
-      color: var(--primary);
-      width: 140px;
-    }
-
-    /* Auction Grid */
-    .auction-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .lot-card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
-    }
-
-    .lot-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .lot-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.75rem;
-    }
-
-    .category-tag {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      background: #e6f4ea;
-      color: var(--primary);
-    }
-
-    .category-tag.pulses {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .timer {
-      font-family: monospace;
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: var(--danger);
-      background: #fee2e2;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .lot-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .lot-specs {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .lot-specs span {
-      display: block;
-    }
-
-    .price-box {
-      background: #f9fafb;
-      padding: 0.75rem;
-      border-radius: 6px;
-      margin-bottom: 1rem;
-    }
-
-    .price-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-
-    .current-price {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--primary-dark);
-    }
-
-    .high-bidder {
-      font-size: 0.8rem;
-      color: var(--success);
-      font-weight: 600;
-    }
-
-    .bid-controls {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .bid-controls input {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-
-    .btn-bid {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 0 1.25rem;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .btn-bid:hover {
-      background-color: var(--primary-dark);
-    }
-
-    .btn-bid:disabled {
-      background-color: var(--text-muted);
-      cursor: not-allowed;
-    }
-
-    /* Sidebar / Live Feed */
-    .sidebar {
-      background: var(--card-bg);
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      padding: 1.25rem;
-      height: fit-content;
-    }
-
-    .sidebar h2 {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .feed-list {
-      list-style: none;
-      max-height: 500px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .feed-item {
-      font-size: 0.85rem;
-      padding: 0.6rem;
-      background: #f9fafb;
-      border-left: 3px solid var(--primary);
-      border-radius: 4px;
-    }
-
-    .feed-time {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    /* Toast Notification */
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--text-main);
-      color: white;
-      padding: 0.8rem 1.25rem;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 1000;
-    }
-
-    #toast.show {
-      opacity: 1;
-    }
-  </style>
+  <title>Origin AgriTrade | Home</title>
 </head>
 <body>
-
   <header>
-    <div class="brand">
-      <h1>AgriTrade Export Exchange</h1>
-      <p>Live International Commodity Bidding Floor (FOB Pricing / Metric Ton)</p>
-    </div>
-    <div class="header-controls">
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        Live Market
-      </div>
-      <button class="btn-export" onclick="exportLiveDataCSV()">⬇ Export Live Data (CSV)</button>
-    </div>
+    <p>Origin AgriTrade Global</p>
+    <p>Live export auction for Ethiopian coffee, pulses, beans, and seeds</p>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="auctions.html">Auctions</a></li>
+        <li><a href="hero.html">Featured lot</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
   </header>
 
-  <main class="container">
-    <!-- Left Section: Auction Lots -->
+  <main>
+    <h1>Bid on warehouse-graded Ethiopian commodities</h1>
+    <p>
+      Origin AgriTrade lists export lots of Arabica coffee, pulses, beans, and oilseeds
+      from Ethiopian growing regions. Each lot shows origin, grade, quantity, and the
+      current bid in US dollars per metric ton. Prices below are the open sample floor
+      for this trading week.
+    </p>
+
+    <figure>
+      <img
+        src="images/coffee-cherries.jpg"
+        alt="Green and red coffee cherries on the branch beside a pile of roasted Arabica beans on a coffee leaf"
+        width="636"
+        height="481">
+      <figcaption>Arabica cherries and roasted beans, the core of the coffee auction.</figcaption>
+    </figure>
+
     <section>
-      <div class="filter-bar">
-        <div class="filter-buttons">
-          <button class="filter-btn active" onclick="filterLots('ALL', this)">All Commodities</button>
-          <button class="filter-btn" onclick="filterLots('Coffee', this)">Coffee Beans</button>
-          <button class="filter-btn" onclick="filterLots('Pulses', this)">Pulses & Lentils</button>
-        </div>
-
-        <div class="bidder-input">
-          <label for="buyerName">Buyer ID:</label>
-          <input type="text" id="buyerName" value="GlobalRoast_Ltd">
-        </div>
-      </div>
-
-      <div class="auction-grid" id="auctionGrid">
-        <!-- Auction cards injected via JavaScript -->
-      </div>
+      <h2>Open lots this week</h2>
+      <p>Full specifications and the bid form are on the <a href="auctions.html">auctions page</a>.</p>
+      <table border="1">
+        <caption>Sample export lots open for bidding</caption>
+        <thead>
+          <tr>
+            <th scope="col">Lot</th>
+            <th scope="col">Commodity</th>
+            <th scope="col">Origin</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Current bid (USD/MT)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>LOT-101</td>
+            <td>Yirgacheffe Grade 1, washed</td>
+            <td>Yirgacheffe</td>
+            <td>19.2 MT</td>
+            <td>4850</td>
+          </tr>
+          <tr>
+            <td>LOT-108</td>
+            <td>Guji Grade 1, washed</td>
+            <td>Guji</td>
+            <td>19.2 MT</td>
+            <td>4680</td>
+          </tr>
+          <tr>
+            <td>LOT-102</td>
+            <td>Kabuli chickpea, 9 mm</td>
+            <td>Highland Ethiopia</td>
+            <td>24.0 MT</td>
+            <td>1120</td>
+          </tr>
+          <tr>
+            <td>LOT-130</td>
+            <td>Humera sesame</td>
+            <td>Humera</td>
+            <td>19.0 MT</td>
+            <td>1650</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a href="hero.html">Read the featured lot, LOT-101</a>.</p>
     </section>
 
-    <!-- Right Section: Live Activity Feed -->
-    <aside class="sidebar">
-      <h2>Live Bid Ticker</h2>
-      <ul class="feed-list" id="feedList">
-        <li class="feed-item">
-          <div><strong>System</strong> initialized auction floor.</div>
-          <div class="feed-time">Just now</div>
-        </li>
+    <section>
+      <h2>Commodities on this floor</h2>
+      <ul>
+        <li>Coffee: 100% Coffea arabica, sold by region and process</li>
+        <li>Pulses: faba bean, chickpea, lentil, field pea, and grass pea</li>
+        <li>Beans: haricot and common beans, including white pea, kidney, pinto, and black beans</li>
+        <li>Seeds: sesame, noug, linseed, groundnut, safflower, fenugreek, and black cumin</li>
       </ul>
-    </aside>
+      <p>Region notes and cup profiles are in the <a href="blog.html">blog</a>. Grading rules are on the <a href="about.html">about page</a>.</p>
+    </section>
+
+    <section>
+      <h2>How a bid is placed</h2>
+      <ol>
+        <li>Open the <a href="auctions.html">auction list</a> and choose a lot number.</li>
+        <li>Enter your buyer name, email, and bid in USD per metric ton.</li>
+        <li>Attach your trade licence or company profile with the file field.</li>
+        <li>Submit the form. Your email program opens so you can send the bid to the trading desk.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Catalogue photos</h2>
+      <p>Every commodity photo used on this site is shown here.</p>
+      <ul>
+        <li>Coffee cherries: coffee</li>
+        <li>Bowls of dried legumes: pulses</li>
+        <li>Pulse chart: types of pulses</li>
+        <li>Loose sesame: oilseed</li>
+        <li>Sesame in a bowl: oilseed</li>
+      </ul>
+
+      <h3>Pulses</h3>
+      <figure>
+        <img
+          src="images/pulses-bowls.jpg"
+          alt="Wooden bowls and glass jars of lentils, chickpeas, black beans, peas, and other pulses on a wooden table"
+          width="678"
+          height="452"
+          loading="lazy">
+        <figcaption>Pulses: lentils, chickpeas, peas, white beans, and black beans.</figcaption>
+      </figure>
+
+      <h3>Types of pulses</h3>
+      <figure>
+        <img
+          src="images/pulse-types.jpg"
+          alt="Chart of pulse types including chickpea, lentils, dry peas, mung beans, pinto beans, kidney beans, and black gram"
+          width="461"
+          height="616"
+          loading="lazy">
+        <figcaption>Types of pulses, from the pulse chart.</figcaption>
+      </figure>
+      <ul>
+        <li>Chickpea</li>
+        <li>Lentils</li>
+        <li>Dry peas</li>
+        <li>Pigeon pea</li>
+        <li>Mung beans</li>
+        <li>Pinto beans</li>
+        <li>Kidney beans</li>
+        <li>Dry broad beans</li>
+        <li>Lupin beans</li>
+        <li>Black-eyed pea</li>
+        <li>Navy beans</li>
+        <li>Black gram</li>
+      </ul>
+
+      <h3>Sesame seeds</h3>
+      <figure>
+        <img
+          src="images/sesame-seeds.jpg"
+          alt="Close view of pale sesame seeds"
+          width="678"
+          height="452"
+          loading="lazy">
+        <figcaption>Sesame seeds, the main oilseed beside the coffee and pulses.</figcaption>
+      </figure>
+      <figure>
+        <img
+          src="images/sesame-bowl.jpg"
+          alt="Speckled ceramic bowl filled with sesame seeds and a spoon lifting a scoop"
+          width="452"
+          height="678"
+          loading="lazy">
+        <figcaption>Sesame in a bowl, shown as an export oilseed lot.</figcaption>
+      </figure>
+      <p>
+        Warehouse checks cover moisture, screen size, and bag count for coffee, pulses, and oilseeds.
+        Send a catalogue request from the <a href="contact.html">contact page</a>.
+      </p>
+    </section>
   </main>
 
-  <div id="toast"></div>
-
-  <script>
-    // 1. Commodity Auction Dataset
-    const lots = [
-      {
-        id: "LOT-101",
-        category: "Coffee",
-        name: "Ethiopian Yirgacheffe Grade 1",
-        origin: "Addis Ababa / Djibouti Port",
-        quantity: "19.2 MT (1 FCL - 320 Bags)",
-        grade: "Washed Arabica, Screen 15+",
-        currentBid: 4850,
-        minIncrement: 25,
-        highestBidder: "NordicBeans_AB",
-        timeLeft: 420 // seconds
-      },
-      {
-        id: "LOT-102",
-        category: "Pulses",
-        name: "Kabuli Chickpeas (9mm)",
-        origin: "Mersin / Izmir Port",
-        quantity: "24.0 MT (1 FCL)",
-        grade: "Export Grade A, Moisture < 12%",
-        currentBid: 1120,
-        minIncrement: 10,
-        highestBidder: "MediterraFoods",
-        timeLeft: 315
-      },
-      {
-        id: "LOT-103",
-        category: "Coffee",
-        name: "Sidamo Natural Grade 2",
-        origin: "Djibouti Port",
-        quantity: "19.2 MT (320 Jute Bags)",
+  <footer>
+    <address>
+      Origin AgriTrade Global<br>
+      Bole, Addis Ababa, Ethiopia<br>
+      <a href="mailto:bids@originagritrade.et">bids@originagritrade.et</a>
+    </address>
+    <p>
+      <a href="index.html">Home</a> |
+      <a href="auctions.html">Auctions</a> |
+      <a href="hero.html">Featured lot</a> |
+      <a href="about.html">About</a> |
+      <a href="blog.html">Blog</a> |
+      <a href="contact.html">Contact</a>
+    </p>
+  </footer>
+</body>
+</html>
